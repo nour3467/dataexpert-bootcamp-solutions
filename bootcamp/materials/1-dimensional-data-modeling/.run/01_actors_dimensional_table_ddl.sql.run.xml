@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="01_actors_dimensional_table_ddl.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
+    <script-file value="$PROJECT_DIR$/homework/01_actors_dimensional_table_ddl.sql" />
+    <script-mode>FILE</script-mode>
+    <data-source id="3c0d6d24-3ce4-48d0-b668-8ea612dccc9e" />
+    <method v="2" />
+  </configuration>
+</component>
