@@ -1,21 +1,9 @@
 -- ============================================================================
 -- 05_generate_host_activity_datelist.sql
 -- Cumulative query to populate host_activity_cumulated (Incremental Pattern)
+-- Assumes table already exists from separate DDL script
 -- ============================================================================
 
--- Drop table if exists
--- DROP TABLE IF EXISTS host_activity_cumulated CASCADE;
-
--- Step 1: Create target table (run once)
-CREATE TABLE IF NOT EXISTS host_activity_cumulated (
-    user_id TEXT,
-    host_name TEXT,  -- This will store the 'host' values from events table
-    host_activity_datelist DATE[],
-    date DATE,
-    PRIMARY KEY (user_id, host_name, date)
-);
-
--- Step 2: Incremental processing query
 INSERT INTO host_activity_cumulated (user_id, host_name, host_activity_datelist, date)
 
 WITH yesterday AS (
@@ -73,46 +61,3 @@ SELECT
 FROM combined
 WHERE host_activity_datelist IS NOT NULL  -- Only include users with activity
 ORDER BY user_id, host_name;
-
--- ============================================================================
--- Alternative: If you have a separate hosts/domains table
--- ============================================================================
-
-/*
--- If you have a hosts table:
-today AS (
-    SELECT DISTINCT
-        e.user_id::TEXT,
-        h.host_name,  -- or h.domain_name
-        DATE(e.event_time) as today_date
-    FROM events e
-    JOIN hosts h ON e.host_id = h.host_id  -- Adjust join condition
-    WHERE DATE(e.event_time) = DATE('2023-01-22')
-    AND e.user_id IS NOT NULL
-),
-*/
-
--- ============================================================================
--- Verification queries
--- ============================================================================
-
--- Check results
-SELECT
-    COUNT(*) as total_records,
-    COUNT(DISTINCT user_id) as unique_users,
-    COUNT(DISTINCT host_name) as unique_hosts,
-    date
-FROM host_activity_cumulated
-WHERE date = DATE('2023-01-22')
-GROUP BY date;
-
--- Show sample data
-SELECT
-    user_id,
-    host_name,
-    host_activity_datelist,
-    ARRAY_LENGTH(host_activity_datelist, 1) as days_active_on_host
-FROM host_activity_cumulated
-WHERE date = DATE('2023-01-22')
-ORDER BY ARRAY_LENGTH(host_activity_datelist, 1) DESC
-LIMIT 10;
